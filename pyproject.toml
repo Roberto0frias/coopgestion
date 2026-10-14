@@ -1,0 +1,80 @@
+[project]
+name = "coopgestion-core"
+version = "0.1.0"
+description = "Sistema interno de gestión para COOPGESTION (cooperativa de ahorro y crédito)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.0,<5.3",
+    "psycopg[binary]>=3.2",
+    "django-environ>=0.11",
+    "argon2-cffi>=23.1",
+    "django-q2>=1.7",
+    "openpyxl>=3.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pytest-cov>=6.0",
+    "factory-boy>=3.3",
+    "hypothesis>=6.115",
+    "ruff>=0.8",
+    "black>=24.10",
+]
+
+[tool.uv]
+# Proyecto "virtual": aún no es un paquete distribuible, solo un entorno de trabajo.
+package = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+# Permite importar "apps.*" desde la raíz del proyecto sin instalar el paquete.
+pythonpath = ["."]
+# NOTA (Fase 1): al crear config/settings se elimina "-p no:django" y se define
+# DJANGO_SETTINGS_MODULE para activar pytest-django.
+addopts = "-ra -q -p no:django"
+markers = [
+    "entorno: verifica la infraestructura (PostgreSQL, codificación, bloqueos)",
+    "calculos: verifica aritmética financiera (interés, amortización, mora, redondeo)",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["apps"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["apps", "tests"]
+exclude = [".venv", "migrations"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "N", "UP", "B", "C4", "RET", "SIM",
+    "T20", "ARG", "PTH", "RUF", "DJ", "S", "PL",
+]
+ignore = [
+    "PLR0913",   # demasiados argumentos: inevitable en servicios financieros explícitos
+    "PLR2004",   # números mágicos en pruebas
+    "S101",      # assert en pruebas
+    "N818",      # en español el prefijo "Error" es la convención (ErrorMonetario)
+]
+
+# Símbolos matemáticos intencionales en documentación y fórmulas en español.
+allowed-confusables = ["×", "→", "≥", "≤", "≠", "≈", "Σ", "·", "–", "—", "«", "»", "“", "”", "’"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106", "PLR0915"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+extend-exclude = "migrations"
