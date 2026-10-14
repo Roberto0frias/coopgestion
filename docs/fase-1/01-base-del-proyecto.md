@@ -122,6 +122,7 @@ Todos aparecieron al ejecutar las pruebas, no por inspección teórica.
 | H-12 | El formulario de login llamaba a `authenticate()` de Django | **La política de bloqueo por intentos fallidos era inoperante** desde la interfaz |
 | H-13 | `verificar_cadena(limite=N)` marcaba la cadena como rota al verificar un tramo | Un reporte de integridad daría falsos positivos en producción |
 | H-14 | Faltaban las plantillas de parámetros (`core/parametros_lista.html`) | Error 500 al abrir la sección |
+| H-15 | El servicio PostgreSQL de la integración continua creaba el rol de la aplicación como **superusuario** (la imagen oficial crea `POSTGRES_USER` con ese privilegio) | El entorno de CI **no reproducía el diseño de menor privilegio** de local y producción. Lo detectó la prueba `test_usuario_de_aplicacion_no_es_superusuario`: el primer flujo de CI falló exactamente por esto |
 
 ---
 

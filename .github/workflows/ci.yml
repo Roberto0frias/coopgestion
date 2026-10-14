@@ -16,19 +16,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
+    # IMPORTANTE: el servicio arranca con el superusuario «postgres», NO con el rol de la
+    # aplicación. La imagen oficial de PostgreSQL crea POSTGRES_USER como SUPERUSUARIO, y
+    # si se usara directamente como rol de la aplicación, el entorno de integración
+    # continua no reproduciría el diseño de menor privilegio de desarrollo y producción.
+    # La prueba test_usuario_de_aplicacion_no_es_superusuario detecta esa diferencia y
+    # hace fallar el flujo, que es exactamente lo que debe ocurrir.
     services:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: coopgestion
-          POSTGRES_USER: coopgestion
-          POSTGRES_PASSWORD: coopgestion_dev
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_admin
           POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
         ports:
           # Mismo puerto que el entorno local (PostgreSQL 16 portable en 5433).
           - 5433:5432
         options: >-
-          --health-cmd "pg_isready -U coopgestion -d coopgestion"
+          --health-cmd "pg_isready -U postgres -d postgres"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 12
@@ -45,6 +51,33 @@ jobs:
     steps:
       - name: Descargar el repositorio
         uses: actions/checkout@v4
+
+      - name: Provisionar el rol de aplicación (menor privilegio)
+        env:
+          PGPASSWORD: postgres_admin
+        run: |
+          set -euo pipefail
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+
+          # Mismo diseño que scripts/entorno/pg_init.ps1 en local:
+          # coopgestion es NOSUPERUSER y NOCREATEROLE; CREATEDB solo para la base de pruebas.
+          psql -h 127.0.0.1 -p 5433 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE coopgestion LOGIN PASSWORD 'coopgestion_dev'
+              NOSUPERUSER NOCREATEROLE CREATEDB;
+          CREATE DATABASE coopgestion OWNER coopgestion ENCODING 'UTF8' TEMPLATE template0;
+          SQL
+
+          psql -h 127.0.0.1 -p 5433 -U postgres -d coopgestion -v ON_ERROR_STOP=1 \
+              -c "ALTER SCHEMA public OWNER TO coopgestion;"
+
+          echo "Privilegios del rol de aplicación:"
+          psql -h 127.0.0.1 -p 5433 -U postgres -d postgres -tAc \
+              "SELECT rolname || ' super=' || rolsuper || ' createdb=' || rolcreatedb ||
+                      ' createrole=' || rolcreaterole
+               FROM pg_roles WHERE rolname = 'coopgestion';"
 
       - name: Instalar uv
         uses: astral-sh/setup-uv@v5
