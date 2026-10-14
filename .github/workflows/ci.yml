@@ -1,0 +1,86 @@
+name: Integración continua
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    name: Calidad, pruebas y cobertura
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: coopgestion
+          POSTGRES_USER: coopgestion
+          POSTGRES_PASSWORD: coopgestion_dev
+          POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+        ports:
+          # Mismo puerto que el entorno local (PostgreSQL 16 portable en 5433).
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U coopgestion -d coopgestion"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      DATABASE_URL: postgres://coopgestion:coopgestion_dev@127.0.0.1:5433/coopgestion
+      COOPGESTION_DB_HOST: 127.0.0.1
+      COOPGESTION_DB_PORT: "5433"
+      COOPGESTION_DB_NAME: coopgestion
+      COOPGESTION_DB_USER: coopgestion
+      COOPGESTION_DB_PASSWORD: coopgestion_dev
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Instalar dependencias
+        run: uv sync --frozen --dev
+
+      - name: Revisar el estilo (ruff)
+        run: uv run ruff check .
+
+      - name: Revisar el formato (black)
+        run: uv run black --check .
+
+      - name: Comprobar que no falten migraciones
+        run: uv run python manage.py makemigrations --check --dry-run
+
+      - name: Revisar el proyecto (django check --deploy)
+        run: uv run python manage.py check --deploy --fail-level WARNING
+        continue-on-error: true
+
+      - name: Pruebas con cobertura
+        run: uv run pytest -q --cov=apps --cov-report=term-missing --cov-report=xml
+
+      # El requisito del 90 % aplica a los módulos de cálculo. Se verifica aparte y de
+      # forma estricta, con un umbral más alto que el global.
+      - name: Cobertura estricta de los módulos de cálculo
+        run: >
+          uv run pytest tests/test_dinero.py tests/core/test_validators.py -q
+          --cov=apps.core.dinero --cov-fail-under=95 --cov-report=term-missing
+
+      - name: Guardar el informe de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: coverage.xml
+          if-no-files-found: ignore
