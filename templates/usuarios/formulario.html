@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo }} · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <div class="mb-4">
+    <a href="{% url 'usuarios:lista' %}" class="enlace">← Volver al listado</a>
+    <h1 class="mt-2 text-xl font-semibold text-slate-900">{{ titulo }}</h1>
+  </div>
+
+  <form method="post" novalidate class="tarjeta max-w-3xl space-y-4">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      {% for campo in form %}
+        <div class="{% if campo.name == 'is_active' %}sm:col-span-2{% endif %}">
+          {% if campo.field.widget.input_type == 'checkbox' %}
+            <label class="flex items-center gap-2 text-sm">
+              {{ campo }}
+              <span>{{ campo.label }}</span>
+            </label>
+          {% else %}
+            <label for="{{ campo.id_for_label }}" class="etiqueta">{{ campo.label }}</label>
+            {{ campo }}
+          {% endif %}
+          {% if campo.help_text %}
+            <p class="mt-1 text-xs text-slate-500">{{ campo.help_text }}</p>
+          {% endif %}
+          {% for error in campo.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="flex justify-end gap-2 border-t border-slate-200 pt-4">
+      <a href="{% url 'usuarios:lista' %}" class="boton-secundario">Cancelar</a>
+      <button type="submit" class="boton-primario">
+        {% if accion == 'crear' %}Crear usuario{% else %}Guardar cambios{% endif %}
+      </button>
+    </div>
+  </form>
+
+  {% if accion == 'crear' %}
+    <p class="mt-4 max-w-3xl text-xs text-slate-500">
+      El usuario deberá cambiar la contraseña en su primer inicio de sesión. El alta queda
+      registrada en la bitácora de auditoría.
+    </p>
+  {% endif %}
+{% endblock %}

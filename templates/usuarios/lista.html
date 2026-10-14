@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block titulo %}Usuarios · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-900">Usuarios internos</h1>
+      <p class="text-sm text-slate-600">
+        Personal de la cooperativa con acceso al sistema. No hay acceso para socios.
+      </p>
+    </div>
+    <a href="{% url 'usuarios:crear' %}" class="boton-primario">Nuevo usuario</a>
+  </div>
+
+  <form class="tarjeta mb-4 grid gap-3 sm:grid-cols-4"
+        hx-get="{% url 'usuarios:lista' %}"
+        hx-target="#tabla-usuarios"
+        hx-select="#tabla-usuarios"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        hx-trigger="submit, change, keyup changed delay:400ms from:#q">
+    <div class="sm:col-span-2">
+      <label class="etiqueta" for="q">Buscar</label>
+      <input type="search" id="q" name="q" value="{{ filtros.q }}"
+             class="campo" placeholder="Nombre o apellido" autocomplete="off">
+    </div>
+    <div>
+      <label class="etiqueta" for="rol">Rol</label>
+      <select id="rol" name="rol" class="campo">
+        <option value="">Todos</option>
+        {% for r in roles %}
+          <option value="{{ r.codigo }}" {% if filtros.rol == r.codigo %}selected{% endif %}>
+            {{ r.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="etiqueta" for="estado">Estado</label>
+      <select id="estado" name="estado" class="campo">
+        <option value="">Todos</option>
+        <option value="activos" {% if filtros.estado == 'activos' %}selected{% endif %}>Activos</option>
+        <option value="inactivos" {% if filtros.estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+        <option value="bloqueados" {% if filtros.estado == 'bloqueados' %}selected{% endif %}>Bloqueados</option>
+      </select>
+    </div>
+  </form>
+
+  <div id="tabla-usuarios" class="tarjeta overflow-x-auto p-0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th>Sucursal</th>
+          <th>Estado</th>
+          <th>Último acceso</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for usuario in usuarios %}
+          <tr>
+            <td class="font-medium">{{ usuario.username }}</td>
+            <td>
+              {{ usuario.nombre_completo }}
+              {% if usuario.cedula %}<div class="text-xs text-slate-500">{{ usuario.cedula }}</div>{% endif %}
+            </td>
+            <td>{{ usuario.rol.nombre|default:"—" }}</td>
+            <td>{{ usuario.sucursal.codigo|default:"—" }}</td>
+            <td>
+              {% if usuario.esta_bloqueado %}
+                <span class="insignia-roja">Bloqueado</span>
+              {% elif usuario.is_active %}
+                <span class="insignia-verde">Activo</span>
+              {% else %}
+                <span class="insignia-gris">Inactivo</span>
+              {% endif %}
+              {% if usuario.debe_cambiar_password %}
+                <span class="insignia-ambar">Clave temporal</span>
+              {% endif %}
+            </td>
+            <td class="text-xs text-slate-600">
+              {{ usuario.ultimo_acceso|date:"d/m/Y H:i"|default:"Nunca" }}
+            </td>
+            <td class="text-right whitespace-nowrap">
+              <a class="enlace" href="{% url 'usuarios:editar' usuario.pk %}">Editar</a>
+              <a class="enlace" href="{% url 'usuarios:restablecer_password' usuario.pk %}">Contraseña</a>
+              {% if usuario.esta_bloqueado %}
+                <form method="post" action="{% url 'usuarios:desbloquear' usuario.pk %}" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="enlace">Desbloquear</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="py-6 text-center text-slate-500">No hay usuarios que coincidan.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="px-4 pb-4">{% include "components/paginacion.html" %}</div>
+  </div>
+{% endblock %}

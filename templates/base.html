@@ -1,0 +1,72 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}COOPGESTION{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+{% if user.is_authenticated %}
+  <header class="border-b border-emerald-900/20 bg-emerald-900 text-emerald-50 shadow">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
+      <a href="{% url 'core:inicio' %}" class="text-lg font-semibold tracking-tight">
+        {{ coopgestion.NOMBRE|default:"COOPGESTION" }}
+        <span class="ml-2 rounded bg-emerald-700 px-2 py-0.5 text-xs font-normal uppercase">
+          Sistema interno
+        </span>
+      </a>
+
+      <nav class="flex flex-1 flex-wrap items-center gap-1 text-sm">
+        {% for item in menu_navegacion %}
+          <a href="{{ item.url }}"
+             class="rounded px-3 py-1.5 transition hover:bg-emerald-800
+                    {% if request.path == item.url %}bg-emerald-800 font-medium{% endif %}">
+            {{ item.nombre }}
+          </a>
+        {% endfor %}
+      </nav>
+
+      <div class="flex items-center gap-3 text-sm">
+        <div class="text-right leading-tight">
+          <div class="font-medium">{{ user.nombre_completo }}</div>
+          <div class="text-xs text-emerald-200">
+            {% if user.rol %}{{ user.rol.nombre }}{% elif user.is_superuser %}Superusuario{% else %}Sin rol{% endif %}
+          </div>
+        </div>
+        <a href="{% url 'usuarios:perfil' %}" class="rounded px-2 py-1 hover:bg-emerald-800">Perfil</a>
+        <form method="post" action="{% url 'cuentas:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="rounded bg-emerald-800 px-3 py-1.5 hover:bg-emerald-700">
+            Salir
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6">
+    {% if user.debe_cambiar_password %}
+      <div class="mb-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        Su contraseña es temporal.
+        <a class="font-semibold underline" href="{% url 'cuentas:password' %}">Cámbiela ahora</a>
+        para continuar trabajando con normalidad.
+      </div>
+    {% endif %}
+
+    {% include "components/mensajes.html" %}
+
+    {% block contenido %}{% endblock %}
+  </main>
+{% else %}
+  <main class="flex min-h-screen items-center justify-center px-4 py-10">
+    {% include "components/mensajes.html" %}
+    {% block contenido_publico %}{% endblock %}
+  </main>
+{% endif %}
+
+</body>
+</html>

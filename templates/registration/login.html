@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block titulo %}Iniciar sesión · COOPGESTION{% endblock %}
+
+{% block contenido_publico %}
+  <div class="w-full max-w-md">
+    <div class="mb-6 text-center">
+      <h1 class="text-2xl font-semibold text-emerald-900">
+        {{ coopgestion.NOMBRE|default:"COOPGESTION" }}
+      </h1>
+      <p class="mt-1 text-sm text-slate-600">Sistema interno · acceso solo para personal</p>
+    </div>
+
+    <div class="tarjeta">
+      <form method="post" novalidate class="space-y-4">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+
+        <div>
+          <label for="{{ form.username.id_for_label }}" class="etiqueta">{{ form.username.label }}</label>
+          {{ form.username }}
+          {% for error in form.username.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.password.id_for_label }}" class="etiqueta">{{ form.password.label }}</label>
+          {{ form.password }}
+          {% for error in form.password.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+        </div>
+
+        <button type="submit" class="boton-primario w-full justify-center">
+          Entrar
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-6 text-center text-xs text-slate-500">
+      El acceso queda registrado en la bitácora de auditoría, incluida la dirección IP.
+    </p>
+  </div>
+{% endblock %}

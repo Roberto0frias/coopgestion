@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block titulo %}Parámetros · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <div class="mb-4">
+    <h1 class="text-xl font-semibold text-slate-900">Parámetros del sistema</h1>
+    <p class="text-sm text-slate-600">
+      Valores configurables sin desplegar código: umbrales, días de gracia, tasas e
+      interruptores. Todo cambio queda registrado en la bitácora de auditoría.
+    </p>
+  </div>
+
+  <div class="tarjeta overflow-x-auto p-0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Clave</th>
+          <th>Valor</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for parametro in parametros %}
+          <tr>
+            <td class="font-mono text-xs font-medium">{{ parametro.clave }}</td>
+            <td class="font-medium">{{ parametro.valor|default:"—" }}</td>
+            <td class="text-xs">{{ parametro.get_tipo_dato_display }}</td>
+            <td class="text-xs text-slate-600">{{ parametro.descripcion|default:"—" }}</td>
+            <td class="text-right">
+              {% if parametro.editable %}
+                <a class="enlace" href="{% url 'core:parametro_editar' parametro.pk %}">Editar</a>
+              {% else %}
+                <span class="text-xs text-slate-400">Solo administrador técnico</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="py-6 text-center text-slate-500">
+              No hay parámetros. Ejecute
+              <code class="rounded bg-slate-200 px-1">python manage.py sembrar_datos_iniciales</code>.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="px-4 pb-4">{% include "components/paginacion.html" %}</div>
+  </div>
+
+  <div class="tarjeta mt-4 max-w-3xl border-amber-300 bg-amber-50">
+    <h2 class="mb-2 text-sm font-semibold text-amber-900">Parámetros pendientes de definir</h2>
+    <ul class="list-inside list-disc space-y-1 text-sm text-amber-900">
+      <li>
+        <strong>Tasa de interés de ahorro</strong> (P-04): queda vacía por decisión expresa.
+        El cálculo de intereses de ahorros fallará con un mensaje claro hasta que la
+        administración la fije.
+      </li>
+      <li>
+        <strong>Tope de mora acumulada</strong> (P-10): en 0 significa sin tope. Requiere
+        validación legal antes de operar con dinero real.
+      </li>
+    </ul>
+  </div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block titulo %}Roles y permisos · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <h1 class="mb-1 text-xl font-semibold text-slate-900">Roles y permisos</h1>
+  <p class="mb-6 text-sm text-slate-600">
+    Matriz aprobada en la Fase 0. Los permisos se aplican con el comando
+    <code class="rounded bg-slate-200 px-1">python manage.py sembrar_roles</code>.
+  </p>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    {% for rol in roles %}
+      <div class="tarjeta">
+        <div class="mb-2 flex items-start justify-between gap-3">
+          <div>
+            <h2 class="font-semibold text-slate-900">{{ rol.nombre }}</h2>
+            <p class="text-xs uppercase tracking-wide text-slate-500">{{ rol.codigo }}</p>
+          </div>
+          {% if rol.es_solo_lectura %}
+            <span class="insignia-gris">Solo lectura</span>
+          {% else %}
+            <span class="insignia-verde">Operativo</span>
+          {% endif %}
+        </div>
+        <p class="mb-3 text-sm text-slate-600">{{ rol.descripcion }}</p>
+        <p class="text-xs text-slate-500">
+          {{ rol.cantidad_permisos }} permiso{{ rol.cantidad_permisos|pluralize }} asignado{{ rol.cantidad_permisos|pluralize }}
+        </p>
+        <details class="mt-2">
+          <summary class="cursor-pointer text-xs text-emerald-800 hover:underline">
+            Ver permisos
+          </summary>
+          <ul class="mt-2 max-h-56 space-y-0.5 overflow-y-auto text-xs text-slate-600">
+            {% for permiso in rol.permisos.all %}
+              <li><code>{{ permiso.content_type.app_label }}.{{ permiso.codename }}</code></li>
+            {% empty %}
+              <li>Sin permisos asignados.</li>
+            {% endfor %}
+          </ul>
+        </details>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,57 @@
+# Docker Compose para DESARROLLO.
+#
+# Levanta PostgreSQL 16 y Django con recarga automática.
+# El código se monta como volumen, de modo que los cambios se aplican sin reconstruir.
+#
+# Uso:
+#   docker compose up --build
+#   docker compose exec web python manage.py sembrar_datos_iniciales
+#
+# NOTA: en esta máquina Windows, Docker no está instalado; el desarrollo diario usa el
+# PostgreSQL 16 portable (puerto 5433) descrito en docs/fase-0/05-entorno-verificado.md.
+# Este archivo se entrega para reproducir el entorno en cualquier equipo con Docker.
+
+services:
+  db:
+    image: postgres:16
+    container_name: coopgestion_db
+    environment:
+      POSTGRES_DB: coopgestion
+      POSTGRES_USER: coopgestion
+      POSTGRES_PASSWORD: coopgestion_dev
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      TZ: America/Santo_Domingo
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coopgestion -d coopgestion"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: coopgestion_web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+      DJANGO_SECRET_KEY: clave-solo-para-desarrollo-local-no-usar-en-produccion
+      DJANGO_DEBUG: "true"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0
+      DATABASE_URL: postgres://coopgestion:coopgestion_dev@db:5432/coopgestion
+      EMISION_NCF_ACTIVA: "false"
+      TZ: America/Santo_Domingo
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  datos_postgres:

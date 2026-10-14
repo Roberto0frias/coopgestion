@@ -21,6 +21,7 @@ htmlcov/
 # Django
 media/
 staticfiles/
+logs/
 *.log
 db.sqlite3
 

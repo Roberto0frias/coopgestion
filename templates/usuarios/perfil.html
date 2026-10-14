@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mi perfil · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <h1 class="mb-1 text-xl font-semibold text-slate-900">Mi perfil</h1>
+  <p class="mb-6 text-sm text-slate-600">
+    Puede actualizar sus datos de contacto. El rol y la sucursal los asigna un administrador.
+  </p>
+
+  <div class="grid gap-4 lg:grid-cols-3">
+    <form method="post" novalidate class="tarjeta space-y-4 lg:col-span-2">
+      {% csrf_token %}
+      <div class="grid gap-4 sm:grid-cols-2">
+        {% for campo in form %}
+          <div>
+            <label for="{{ campo.id_for_label }}" class="etiqueta">{{ campo.label }}</label>
+            {{ campo }}
+            {% for error in campo.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="flex justify-end border-t border-slate-200 pt-4">
+        <button type="submit" class="boton-primario">Guardar cambios</button>
+      </div>
+    </form>
+
+    <div class="space-y-4">
+      <div class="tarjeta">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Seguridad
+        </h2>
+        <p class="mb-3 text-sm text-slate-600">
+          Último acceso: <strong>{{ user.ultimo_acceso|date:"d/m/Y H:i"|default:"—" }}</strong>
+        </p>
+        <a href="{% url 'cuentas:password' %}" class="boton-secundario w-full justify-center">
+          Cambiar contraseña
+        </a>
+      </div>
+
+      <div class="tarjeta">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Mi acceso
+        </h2>
+        <dl class="space-y-2 text-sm">
+          <div class="flex justify-between gap-4">
+            <dt class="text-slate-500">Usuario</dt>
+            <dd class="font-medium">{{ user.username }}</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-slate-500">Rol</dt>
+            <dd class="font-medium">{{ user.rol.nombre|default:"—" }}</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-slate-500">Sucursal</dt>
+            <dd class="font-medium">{{ user.sucursal|default:"—" }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -63,6 +63,8 @@
 | D-09 | Roles de base de datos | Dos roles: `postgres` (superusuario, solo administración) y `coopgestion` (aplicación: `NOSUPERUSER`, `NOCREATEROLE`). `CREATEDB` solo en desarrollo para la base de pruebas |
 | D-10 | Residuo de centavos | El residuo de cada componente (capital e interés) se concentra en la última cuota. La base de reparto se calcula con redondeo **hacia abajo**, para que ninguna cuota pueda resultar negativa |
 | D-11 | Entorno de desarrollo | PostgreSQL 16.15 portable en `127.0.0.1:5433`, en el perfil del usuario y sin permisos de administrador. La instalación previa de PostgreSQL 18.6 en el puerto 5432 se deja intacta |
+| D-12 | Rol aprobador **(P-13)** | **Se crea el rol «Gerencia / Comité de Crédito»** (`COMITE`) como aprobador distinto del Oficial de Préstamos. El sistema bloquea que alguien apruebe su propia operación |
+| D-13 | Tasa de interés de ahorro **(P-04)** | **Se deja sin valor por ahora.** El parámetro no se siembra y el cálculo de intereses de ahorros fallará con un mensaje claro hasta que la administración fije la tasa. Se define antes de la Fase 4 |
 
 ---
 
@@ -76,7 +78,7 @@
 | Aportaciones | Patrimonio (capital social), grupo 3, separadas de los depósitos de ahorro (grupo 2) |
 | Base de causación | Devengo (accrual): los intereses de préstamos y de ahorros se devengan y se contabilizan por período, no al cobro |
 | Cierres | Diario: corte de caja al final de la jornada. Mensual: cierre contable con asientos de ajuste. Un período cerrado solo se corrige por asiento de reverso |
-| Roles base | Administrador, Contador, Oficial de Préstamos, Cajero, Auditor (solo lectura) + **propuesta** de rol Gerencia/Comité de Crédito como aprobador |
+| Roles base | Administrador, Contador, Oficial de Préstamos, Cajero, Auditor (solo lectura) y **Gerencia/Comité de Crédito** (confirmado en D-12) |
 | Seguridad | Sesión con expiración, contraseña fuerte, bloqueo por intentos fallidos, **2FA opcional** (recomendado para Administrador y Contador) |
 | Respaldos | `pg_dump` diario cifrado, retención 30 días, copia fuera del servidor, restauración de prueba mensual documentada |
 | Auditoría | Bitácora inmutable con cadena de hash: quién, qué, cuándo, desde dónde, valor anterior y nuevo |
@@ -92,7 +94,7 @@
 | P-01 | RNC e inscripción IDECOOP en trámite | **BLOQUEO para emitir NCF** (Fase 6) | Roberto / DGII | Abierto |
 | P-02 | Tipos de NCF aplicables a ingresos exentos, secuencias autorizadas y obligatoriedad de e-CF | Fase 2 y 6 | Contador / DGII | Abierto |
 | P-03 | No hay contador designado: validar catálogo de cuentas, provisiones, retenciones y exención de ITBIS | Fases 2, 5 y 6 | Roberto | Abierto |
-| P-04 | Tasas de interés de ahorro por tipo de cuenta (valores iniciales) | Fase 4 | Administración | Abierto |
+| P-04 | Tasas de interés de ahorro por tipo de cuenta (valores iniciales) | Fase 4 | Administración | **Resuelto en D-13**: sin valor hasta la Fase 4 |
 | P-05 | Tabla de porcentajes de provisión de cartera por antigüedad | Fase 2 y 5 | Contador | Abierto |
 | P-06 | Listado de formularios y frecuencia de reportes IDECOOP | Fase 6 | Roberto / IDECOOP | Abierto |
 | P-07 | Archivos Excel de origen: estructura, columnas y calidad de datos | Fase 8 | Administración | Abierto |
@@ -101,11 +103,12 @@
 | P-10 | Tope de mora acumulada y validación legal del 5 % por período | **Riesgo legal** | Abogado / Contador | Abierto |
 | P-11 | ¿Cuota de admisión o membresía? ¿Distribución de excedentes anuales? ¿Certificados de aportación? | Fases 3 y 6 | Administración / Asamblea | Abierto |
 | P-12 | Antigüedad para declarar cuenta inactiva o dormida y proceso de reactivación | Fase 4 | Administración | Abierto |
-| P-13 | ¿Se crea el rol Gerencia/Comité de Crédito como aprobador distinto del Oficial? | Fase 1 | Roberto | Abierto |
+| P-13 | ¿Se crea el rol Gerencia/Comité de Crédito como aprobador distinto del Oficial? | Fase 1 | Roberto | **Resuelto en D-12**: rol `COMITE` creado |
 | P-14 | Base de mora cuando la cuota está parcialmente pagada (propuesta: saldo insoluto de la cuota) | Fase 5 | Contador | Abierto |
 | P-15 | ¿La tasa del 2 % de voluntarias se determina por producto o por bandera de proyecto? | Fase 5 | Administración | Abierto |
 | P-16 | Alícuotas de reserva legal, educación y asistencia social (3-2) | Fase 2 | Contador | Abierto |
 | P-17 | Tratamiento de ITBIS en comisiones y de retenciones de ISR, si aplican | Fases 2 y 6 | Contador / DGII | Abierto |
+| P-18 | Validar el algoritmo del dígito verificador de la cédula con cédulas reales de la cooperativa | Fase 3 | Administración | Abierto |
 
 ---
 

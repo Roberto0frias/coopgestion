@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block titulo %}Editar parámetro · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <div class="mb-4">
+    <a href="{% url 'core:parametros' %}" class="enlace">← Volver a los parámetros</a>
+    <h1 class="mt-2 text-xl font-semibold text-slate-900">
+      Editar parámetro <span class="font-mono text-base">{{ object.clave }}</span>
+    </h1>
+    <p class="text-sm text-slate-600">
+      Tipo declarado: <strong>{{ object.get_tipo_dato_display }}</strong>. El valor debe
+      corresponder a ese tipo.
+    </p>
+  </div>
+
+  <form method="post" novalidate class="tarjeta max-w-xl space-y-4">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    {% for campo in form %}
+      <div>
+        {% if campo.field.widget.input_type == 'checkbox' %}
+          <label class="flex items-center gap-2 text-sm">{{ campo }}<span>{{ campo.label }}</span></label>
+        {% else %}
+          <label for="{{ campo.id_for_label }}" class="etiqueta">{{ campo.label }}</label>
+          {{ campo }}
+        {% endif %}
+        {% if campo.help_text %}<p class="mt-1 text-xs text-slate-500">{{ campo.help_text }}</p>{% endif %}
+        {% for error in campo.errors %}<p class="error-campo">{{ error }}</p>{% endfor %}
+      </div>
+    {% endfor %}
+
+    <div class="flex justify-end gap-2 border-t border-slate-200 pt-4">
+      <a href="{% url 'core:parametros' %}" class="boton-secundario">Cancelar</a>
+      <button type="submit" class="boton-primario">Guardar</button>
+    </div>
+  </form>
+{% endblock %}

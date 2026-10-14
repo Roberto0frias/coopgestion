@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block titulo %}Inicio · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <h1 class="mb-1 text-xl font-semibold text-slate-900">Panel de inicio</h1>
+  <p class="mb-6 text-sm text-slate-600">
+    Bienvenido, {{ user.nombre_corto }}. Estado actual del sistema.
+  </p>
+
+  {% if not ncf_activo %}
+    <div class="mb-6 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900">
+      <strong>Emisión de comprobantes fiscales (NCF) desactivada.</strong>
+      No se emitirá ningún comprobante con validez fiscal hasta que existan el RNC y las
+      secuencias autorizadas por la DGII (decisión D-08). Los comprobantes internos se
+      emiten y numeran con normalidad.
+    </div>
+  {% endif %}
+
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="tarjeta">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Usuarios activos</div>
+      <div class="mt-1 text-3xl font-semibold text-slate-900">{{ usuarios_activos }}</div>
+      <div class="mt-1 text-xs text-slate-500">de {{ total_usuarios }} registrados</div>
+    </div>
+    <div class="tarjeta">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Roles</div>
+      <div class="mt-1 text-3xl font-semibold text-slate-900">{{ total_roles }}</div>
+      <div class="mt-1 text-xs text-slate-500">perfiles de acceso activos</div>
+    </div>
+    <div class="tarjeta">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Sucursales</div>
+      <div class="mt-1 text-3xl font-semibold text-slate-900">{{ total_sucursales }}</div>
+      <div class="mt-1 text-xs text-slate-500">{{ total_secuencias }} secuencias documentales</div>
+    </div>
+    <div class="tarjeta">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Eventos auditados hoy</div>
+      <div class="mt-1 text-3xl font-semibold text-slate-900">{{ eventos_hoy }}</div>
+      <div class="mt-1 text-xs text-slate-500">cambios registrados</div>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-4 lg:grid-cols-2">
+    <div class="tarjeta">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+        Su acceso
+      </h2>
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between gap-4">
+          <dt class="text-slate-500">Rol</dt>
+          <dd class="font-medium">
+            {% if user.rol %}{{ user.rol.nombre }}{% else %}Sin rol asignado{% endif %}
+          </dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-slate-500">Puede aprobar operaciones</dt>
+          <dd class="font-medium">{{ user.puede_aprobar|yesno:"Sí,No" }}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-slate-500">Permisos otorgados</dt>
+          <dd class="font-medium">{{ user.get_all_permissions|length }}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-slate-500">Último acceso</dt>
+          <dd class="font-medium">
+            {{ user.ultimo_acceso|date:"d/m/Y H:i"|default:"—" }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="tarjeta">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+        Siguientes pasos de la puesta en marcha
+      </h2>
+      <ol class="list-inside list-decimal space-y-1 text-sm text-slate-700">
+        <li>Confirmar la sucursal y la moneda DOP creadas por el sembrado inicial.</li>
+        <li>Revisar los seis roles y sus permisos en <em>Roles</em>.</li>
+        <li>Definir la tasa de interés de ahorro (pendiente P-04) antes de la Fase 4.</li>
+        <li>Validar el catálogo de cuentas con el contador antes de la Fase 2.</li>
+      </ol>
+    </div>
+  </div>
+{% endblock %}

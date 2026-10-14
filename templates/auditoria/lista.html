@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block titulo %}Auditoría · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-900">Bitácora de auditoría</h1>
+      <p class="text-sm text-slate-600">
+        Registro inmutable de todo cambio: quién, qué, cuándo, desde dónde y qué valores cambiaron.
+      </p>
+    </div>
+    {% if perms.auditoria.puede_verificar_cadena %}
+      <a href="{% url 'auditoria:verificar' %}" class="boton-secundario">
+        Verificar integridad de la cadena
+      </a>
+    {% endif %}
+  </div>
+
+  <form class="tarjeta mb-4 grid gap-3 sm:grid-cols-5"
+        hx-get="{% url 'auditoria:lista' %}"
+        hx-target="#tabla-auditoria"
+        hx-select="#tabla-auditoria"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        hx-trigger="submit, change">
+    <div>
+      <label class="etiqueta" for="accion">Acción</label>
+      <select id="accion" name="accion" class="campo">
+        <option value="">Todas</option>
+        {% for valor, etiqueta in acciones %}
+          <option value="{{ valor }}" {% if filtros.accion == valor %}selected{% endif %}>{{ etiqueta }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="etiqueta" for="modelo">Modelo</label>
+      <select id="modelo" name="modelo" class="campo">
+        <option value="">Todos</option>
+        {% for m in modelos %}
+          <option value="{{ m }}" {% if filtros.modelo == m %}selected{% endif %}>{{ m }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="etiqueta" for="usuario">Usuario</label>
+      <input type="search" id="usuario" name="usuario" value="{{ filtros.usuario }}"
+             class="campo" placeholder="Nombre de usuario" autocomplete="off">
+    </div>
+    <div>
+      <label class="etiqueta" for="desde">Desde</label>
+      <input type="date" id="desde" name="desde" value="{{ filtros.desde }}" class="campo">
+    </div>
+    <div>
+      <label class="etiqueta" for="hasta">Hasta</label>
+      <input type="date" id="hasta" name="hasta" value="{{ filtros.hasta }}" class="campo">
+    </div>
+  </form>
+
+  <div id="tabla-auditoria" class="tarjeta overflow-x-auto p-0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Fecha y hora</th>
+          <th>Acción</th>
+          <th>Objeto</th>
+          <th>Usuario</th>
+          <th>Origen</th>
+          <th class="text-right">Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for registro in registros %}
+          <tr>
+            <td class="whitespace-nowrap text-xs">{{ registro.fecha|date:"d/m/Y H:i:s" }}</td>
+            <td>
+              {% if registro.accion == 'CREAR' %}<span class="insignia-verde">{{ registro.get_accion_display }}</span>
+              {% elif registro.accion == 'ELIMINAR' %}<span class="insignia-roja">{{ registro.get_accion_display }}</span>
+              {% elif registro.accion == 'ACTUALIZAR' %}<span class="insignia-ambar">{{ registro.get_accion_display }}</span>
+              {% else %}<span class="insignia-gris">{{ registro.get_accion_display }}</span>{% endif %}
+            </td>
+            <td class="text-xs">
+              <div class="font-medium text-slate-700">{{ registro.modelo }}</div>
+              <div class="text-slate-500">#{{ registro.objeto_id }}</div>
+            </td>
+            <td class="text-xs">{{ registro.usuario_texto|default:"sistema" }}</td>
+            <td class="text-xs text-slate-500">{{ registro.ip|default:"—" }}</td>
+            <td class="text-right">
+              <a class="enlace" href="{% url 'auditoria:detalle' registro.pk %}">Ver</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="py-6 text-center text-slate-500">No hay registros que coincidan.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="px-4 pb-4">{% include "components/paginacion.html" %}</div>
+  </div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block titulo %}Verificar auditoría · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <div class="mb-4">
+    <a href="{% url 'auditoria:lista' %}" class="enlace">← Volver a la bitácora</a>
+    <h1 class="mt-2 text-xl font-semibold text-slate-900">Verificación de la cadena de auditoría</h1>
+    <p class="text-sm text-slate-600">
+      Se recalcula el hash de cada registro y se comprueba que apunte al anterior. Si alguien
+      alteró una fila de la base de datos, la verificación lo detecta y señala el registro exacto.
+    </p>
+  </div>
+
+  <div class="tarjeta max-w-3xl {% if resultado.integridad %}border-emerald-300 bg-emerald-50{% else %}border-red-300 bg-red-50{% endif %}">
+    <h2 class="text-lg font-semibold {% if resultado.integridad %}text-emerald-900{% else %}text-red-900{% endif %}">
+      {% if resultado.integridad %}Cadena íntegra{% else %}Cadena alterada{% endif %}
+    </h2>
+    <dl class="mt-3 space-y-1 text-sm">
+      <div class="flex justify-between gap-4">
+        <dt>Registros en la bitácora</dt><dd class="font-medium">{{ total_registros }}</dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt>Registros verificados</dt><dd class="font-medium">{{ resultado.revisados }}</dd>
+      </div>
+      {% if resultado.primer_error_id %}
+        <div class="flex justify-between gap-4">
+          <dt>Primer error en</dt><dd class="font-medium">registro {{ resultado.primer_error_id }}</dd>
+        </div>
+      {% endif %}
+    </dl>
+    <p class="mt-3 text-sm">{{ resultado.detalle }}</p>
+  </div>
+
+  <p class="mt-4 max-w-3xl text-xs text-slate-500">
+    La misma verificación está disponible como comando para monitoreo automatizado:
+    <code class="rounded bg-slate-200 px-1">python manage.py verificar_cadena_auditoria</code>
+    (devuelve código de salida 1 si la cadena está rota).
+  </p>
+{% endblock %}

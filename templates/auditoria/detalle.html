@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block titulo %}Detalle de auditoría · COOPGESTION{% endblock %}
+
+{% block contenido %}
+  <div class="mb-4">
+    <a href="{% url 'auditoria:lista' %}" class="enlace">← Volver a la bitácora</a>
+    <h1 class="mt-2 text-xl font-semibold text-slate-900">
+      {{ registro.get_accion_display }} · {{ registro.modelo }} #{{ registro.objeto_id }}
+    </h1>
+    <p class="text-sm text-slate-600">{{ registro.fecha|date:"d/m/Y H:i:s" }}</p>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-3">
+    <div class="tarjeta lg:col-span-1">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Quién y desde dónde</h2>
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between gap-3"><dt class="text-slate-500">Usuario</dt><dd class="font-medium">{{ registro.usuario_texto|default:"sistema" }}</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-slate-500">Dirección IP</dt><dd class="font-medium">{{ registro.ip|default:"—" }}</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-slate-500">Aplicación</dt><dd class="font-medium">{{ registro.app|default:"—" }}</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-slate-500">Descripción</dt><dd class="text-right font-medium">{{ registro.descripcion|default:"—" }}</dd></div>
+      </dl>
+      <p class="mt-3 break-all text-xs text-slate-500">Navegador: {{ registro.user_agent|default:"—" }}</p>
+    </div>
+
+    <div class="tarjeta lg:col-span-2">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Campos que cambiaron</h2>
+      {% if registro.resumen_cambios %}
+        <table class="tabla">
+          <thead>
+            <tr><th>Campo</th><th>Valor anterior</th><th>Valor nuevo</th></tr>
+          </thead>
+          <tbody>
+            {% for cambio in registro.resumen_cambios %}
+              <tr>
+                <td class="font-medium">{{ cambio.campo }}</td>
+                <td class="text-xs text-red-800">{{ cambio.antes|default:"—" }}</td>
+                <td class="text-xs text-emerald-800">{{ cambio.despues|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-sm text-slate-500">
+          Este registro no tiene diferencias de campos (por ejemplo, un inicio de sesión).
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="tarjeta mt-4">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+      Encadenamiento criptográfico
+    </h2>
+    <dl class="space-y-2 text-xs">
+      <div>
+        <dt class="text-slate-500">Hash del registro anterior</dt>
+        <dd class="break-all font-mono">{{ registro.hash_anterior|default:"(primero de la cadena)" }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">Hash de este registro</dt>
+        <dd class="break-all font-mono">{{ registro.hash_registro }}</dd>
+      </div>
+    </dl>
+  </div>
+{% endblock %}
