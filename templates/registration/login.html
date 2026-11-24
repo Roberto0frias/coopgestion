@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión{% endblock %}
+{% block unauthenticated %}
+<main class="login-page"><section class="login-card"><a class="brand login-brand" href="{% url 'login' %}"><span class="brand-mark">C</span><span><b>COOPGESTION</b><small>Gestión cooperativa</small></span></a><div class="login-heading"><p class="eyebrow">PORTAL INTERNO</p><h1>Bienvenido</h1><p>Inicia sesión con tu cuenta institucional.</p></div>
+{% if form.errors %}<div class="form-error" role="alert">Usuario o contraseña incorrectos. Si la cuenta quedó temporalmente bloqueada, espera antes de intentar de nuevo.</div>{% endif %}
+<form method="post" class="login-form">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><label for="id_username">Usuario</label><input id="id_username" name="username" autocomplete="username" required autofocus><label for="id_password">Contraseña</label><input id="id_password" name="password" type="password" autocomplete="current-password" required><button class="button button-primary" type="submit">Ingresar al sistema <span>→</span></button></form><p class="login-note">Acceso exclusivo para personal autorizado.</p></section><div class="login-decoration"><div class="decor-orbit orbit-one"></div><div class="decor-orbit orbit-two"></div><span class="decor-mark">C</span><p>Confianza que crece<br>con cada aporte.</p></div></main>
+{% endblock %}

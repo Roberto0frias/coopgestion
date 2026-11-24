@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ nombre_modulo }}{% endblock %}
+{% block breadcrumb %}{{ nombre_modulo }}{% endblock %}
+{% block content %}
+<section class="welcome-row"><div><p class="eyebrow">MÓDULO DE GESTIÓN</p><h1>{{ nombre_modulo }}</h1><p class="welcome-subtitle">{{ descripcion_modulo }}</p></div></section>
+<section class="notice-card"><div class="notice-icon">◷</div><div><b>Este módulo todavía está en desarrollo</b><p>Estamos preparando sus modelos, controles de acceso y flujos de trabajo. Los datos financieros solo se habilitarán cuando estén listas sus validaciones.</p></div></section>
+<a class="button button-primary back-button" href="{% url 'inicio' %}">← Volver al panel</a>
+{% endblock %}

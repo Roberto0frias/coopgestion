@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'socios:lista' %}">Socios</a> <span>/</span> {{ titulo }}{% endblock %}
+{% block content %}
+<section class="welcome-row"><div><p class="eyebrow">EXPEDIENTE DEL SOCIO</p><h1>{{ titulo }}</h1><p class="welcome-subtitle">Los expedientes nuevos quedan pendientes hasta que otra persona autorizada resuelva la admisión.</p></div></section>
+<form method="post" class="form-panel">{% csrf_token %}{% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}<div class="form-section-title"><h2>Información de membresía</h2><p>Selecciona el tipo que corresponda según la clasificación aprobada.</p></div><div class="form-grid">
+{% for field in form %}<div class="form-field {% if field.field.widget.input_type == 'checkbox' %}checkbox-field{% endif %} {% if field.name == 'direccion' %}span-two{% endif %}">{% if field.field.widget.input_type == 'checkbox' %}<label class="checkbox-label">{{ field }}<span>{{ field.label }}</span></label>{% else %}<label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<i>*</i>{% endif %}</label>{{ field }}{% endif %}{% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}
+</div><div class="form-note">La información personal se muestra según los permisos de cada rol. Los ingresos se guardan como valores decimales exactos.</div><div class="form-actions"><a class="button button-light" href="{% if socio %}{% url 'socios:detalle' socio.pk %}{% else %}{% url 'socios:lista' %}{% endif %}">Cancelar</a><button class="button button-primary" type="submit">Guardar expediente <span>→</span></button></div></form>
+{% endblock %}

@@ -11,6 +11,8 @@ dependencies = [
     "argon2-cffi>=23.1",
     "django-q2>=1.7",
     "openpyxl>=3.1",
+    "gunicorn>=23.0; sys_platform != 'win32'",
+    "whitenoise>=6.9",
 ]
 
 [dependency-groups]
@@ -33,9 +35,8 @@ minversion = "8.0"
 testpaths = ["tests"]
 # Permite importar "apps.*" desde la raíz del proyecto sin instalar el paquete.
 pythonpath = ["."]
-# NOTA (Fase 1): al crear config/settings se elimina "-p no:django" y se define
-# DJANGO_SETTINGS_MODULE para activar pytest-django.
-addopts = "-ra -q -p no:django"
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+addopts = "-ra -q"
 markers = [
     "entorno: verifica la infraestructura (PostgreSQL, codificación, bloqueos)",
     "calculos: verifica aritmética financiera (interés, amortización, mora, redondeo)",

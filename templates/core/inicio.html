@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<section class="welcome-row"><div><p class="eyebrow">PANEL DE CONTROL</p><h1>Buenos días, {{ request.user.first_name|default:request.user.get_username }}</h1><p class="welcome-subtitle">Este es el espacio de trabajo de tu cooperativa.</p></div><span class="date-chip">{{ now|date:"d/m/Y" }}</span></section>
+<section class="notice-card"><div class="notice-icon">✦</div><div><b>La plataforma está en construcción</b><p>Socios y el libro contable están disponibles. Ahorros permite preparar productos y cuentas; los movimientos financieros siguen bloqueados.</p></div><span class="phase-badge">FASE 1</span></section>
+<section class="section-heading"><div><h2>Módulos de gestión</h2><p>Accede a las funciones disponibles y consulta el avance de las siguientes fases.</p></div></section>
+<div class="module-grid">
+  <a class="module-card" href="{% url 'socios:lista' %}"><div class="module-icon green">♙</div><div class="module-meta"><span class="module-state">DISPONIBLE</span><h3>Socios</h3><p>Expedientes, admisiones, documentos y aportaciones.</p></div><span class="module-arrow">→</span></a>
+  <a class="module-card" href="{% url 'ahorros:lista' %}"><div class="module-icon blue">◉</div><div class="module-meta"><span class="module-state">CONFIGURACIÓN DISPONIBLE</span><h3>Ahorros</h3><p>Productos, apertura de cuentas y preparación de movimientos.</p></div><span class="module-arrow">→</span></a>
+  <a class="module-card" href="{% url 'modulo_pendiente' 'prestamos' %}"><div class="module-icon violet">↗</div><div class="module-meta"><span class="module-state">PLANIFICADO</span><h3>Préstamos</h3><p>Solicitudes, evaluación, cuotas y seguimiento.</p></div><span class="module-arrow">→</span></a>
+  <a class="module-card" href="{% url 'contabilidad:lista' %}"><div class="module-icon amber">▤</div><div class="module-meta"><span class="module-state">DISPONIBLE</span><h3>Contabilidad</h3><p>Partida doble, catálogo de cuentas y períodos.</p></div><span class="module-arrow">→</span></a>
+</div>
+<section class="bottom-grid"><article class="panel"><div class="panel-title"><div><h2>Avance de desarrollo</h2><p>Fase 1 · Fundamentos y operaciones básicas</p></div><span class="module-state">EN CURSO</span></div><div class="phase-items"><span><i>✓</i> Acceso, roles y auditoría</span><span><i>✓</i> Expediente y admisión de socios</span><span><i>✓</i> Libro diario, partida doble y reversos</span><span><i class="pending-dot">•</i> Tasas de ahorro y catálogo sujetos a aprobación</span></div></article><article class="panel security-panel"><div class="security-mark">✓</div><div><h2>Acceso protegido</h2><p>Tu sesión está activa y los intentos de acceso se registran para auditoría.</p></div></article></section>
+{% endblock %}

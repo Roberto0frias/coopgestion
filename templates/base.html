@@ -1,0 +1,38 @@
+{% load static %}
+<!doctype html>
+<html lang="es-DO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b35">
+  <title>{% block title %}COOPGESTION{% endblock %} · COOPGESTION</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+{% if request.user.is_authenticated %}
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="{% url 'inicio' %}"><span class="brand-mark">C</span><span><b>COOPGESTION</b><small>Gestión cooperativa</small></span></a>
+      <p class="nav-caption">MENÚ PRINCIPAL</p>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a class="{% if request.resolver_match.url_name == 'inicio' %}active{% endif %}" href="{% url 'inicio' %}"><span>⌂</span>Inicio</a>
+        <a href="{% url 'socios:lista' %}"><span>♙</span>Socios</a>
+        <a href="{% url 'ahorros:lista' %}"><span>◉</span>Ahorros</a>
+        <a href="{% url 'modulo_pendiente' 'prestamos' %}"><span>↗</span>Préstamos</a>
+        <a href="{% url 'contabilidad:lista' %}"><span>▤</span>Contabilidad</a>
+        <a href="{% url 'modulo_pendiente' 'reportes' %}"><span>▥</span>Reportes</a>
+        {% if request.user.rol == 'ADMIN' or request.user.rol == 'AUDITOR' %}<a href="{% url 'admin:auditoria_eventoauditoria_changelist' %}"><span>◷</span>Auditoría</a>{% endif %}
+        {% if request.user.rol == 'ADMIN' or request.user.is_superuser %}<a href="{% url 'admin:index' %}"><span>⚙</span>Administración</a>{% endif %}
+        {% if request.user.rol == 'CONTADOR' %}<a href="{% url 'admin:index' %}"><span>⚙</span>Catálogo contable</a>{% endif %}
+      </nav>
+      <div class="sidebar-bottom"><span class="avatar">{{ request.user.get_full_name|default:request.user.username|slice:":1"|upper }}</span><span class="user-info"><b>{{ request.user.get_full_name|default:request.user.username }}</b><small>{{ request.user.get_rol_display }}</small></span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="logout" title="Cerrar sesión" aria-label="Cerrar sesión">↪</button></form></div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar"><div class="breadcrumbs">COOPGESTION <span>/</span> <b>{% block breadcrumb %}Inicio{% endblock %}</b></div><div class="topbar-right"><span class="status-pill"><i></i> Sistema interno</span><span class="top-date">{{ now|date:"l, d \d\e F \d\e Y" }}</span></div></header>
+      <div class="page-content">{% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</div>
+      <footer class="footer">COOPGESTION <span>·</span> Sistema interno de gestión <span class="footer-right">Fase inicial de desarrollo</span></footer>
+    </main>
+  </div>
+{% else %}{% block unauthenticated %}{% endblock %}{% endif %}
+</body>
+</html>

@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block title %}Movimientos de ahorro{% endblock %}
+{% block breadcrumb %}<a href="{% url 'ahorros:lista' %}">Ahorros</a> <span>/</span> Movimientos{% endblock %}
+{% block content %}<section class="welcome-row"><div><p class="eyebrow">CAPTACIONES · OPERACIONES</p><h1>Movimientos de ahorro</h1><p class="welcome-subtitle">Depósitos, retiros e intereses con efecto financiero.</p></div></section><section class="notice-card"><div class="notice-icon">i</div><div><b>Movimientos aún no habilitados</b><p>La interfaz no acepta dinero hasta que Caja, las cuentas contables aprobadas y el arqueo diario estén implementados.</p></div><span class="phase-badge">EN PREPARACIÓN</span></section><a class="back-link" href="{% url 'ahorros:lista' %}">← Volver a ahorros</a>{% endblock %}

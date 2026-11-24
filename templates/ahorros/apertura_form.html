@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Abrir cuenta de ahorro{% endblock %}
+{% block breadcrumb %}<a href="{% url 'ahorros:lista' %}">Ahorros</a> <span>/</span> Abrir cuenta{% endblock %}
+{% block content %}
+<section class="welcome-row"><div><p class="eyebrow">CAPTACIONES · CUENTAS</p><h1>Abrir cuenta de ahorro</h1><p class="welcome-subtitle">Solo socios activos con un producto aprobado pueden abrir una cuenta.</p></div></section>
+<form method="post" class="form-panel password-panel">{% csrf_token %}{% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}<div class="form-grid">{% for field in form %}<div class="form-field span-two"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}</div><div class="form-note">La apertura no crea saldo. Depósitos y retiros estarán disponibles cuando se completen Caja y el catálogo contable.</div><div class="form-actions"><a class="button button-light" href="{% url 'ahorros:lista' %}">Cancelar</a><button class="button button-primary" type="submit">Abrir cuenta <span>→</span></button></div></form>
+{% endblock %}

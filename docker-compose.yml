@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-coopgestion}
+      POSTGRES_USER: ${POSTGRES_USER:-coopgestion}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}
+      TZ: America/Santo_Domingo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-coopgestion} -d ${POSTGRES_DB:-coopgestion}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+      DATABASE_URL: postgres://${POSTGRES_USER:-coopgestion}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-coopgestion}
+    command: sh -c "/app/.venv/bin/python manage.py migrate --noinput && /app/.venv/bin/python manage.py collectstatic --noinput && /app/.venv/bin/gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile - --error-logfile -"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - static_data:/app/staticfiles
+
+volumes:
+  postgres_data:
+  static_data:

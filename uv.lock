@@ -214,8 +214,10 @@ dependencies = [
     { name = "django" },
     { name = "django-environ" },
     { name = "django-q2" },
+    { name = "gunicorn", marker = "sys_platform != 'win32'" },
     { name = "openpyxl" },
     { name = "psycopg", extra = ["binary"] },
+    { name = "whitenoise" },
 ]
 
 [package.dev-dependencies]
@@ -235,8 +237,10 @@ requires-dist = [
     { name = "django", specifier = ">=5.0,<5.3" },
     { name = "django-environ", specifier = ">=0.11" },
     { name = "django-q2", specifier = ">=1.7" },
+    { name = "gunicorn", marker = "sys_platform != 'win32'", specifier = ">=23.0" },
     { name = "openpyxl", specifier = ">=3.1" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
+    { name = "whitenoise", specifier = ">=6.9" },
 ]
 
 [package.metadata.requires-dev]
@@ -428,6 +432,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/33/6c/b8793efc2f00a912ef17cf0b61b717cddf34607499efcb8a32238c119368/faker-40.43.0.tar.gz", hash = "sha256:02fae4327c03a4a6315e1b428a3878f435bfc276c93435ea349b95c0c9372361", size = 2032713, upload-time = "2026-10-09T20:06:29.652Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/81/ed/0d6d0d6467ae3d009fb82fb411867c7fcfeadbdd25602cab0d7a7963f400/faker-40.43.0-py3-none-any.whl", hash = "sha256:9dd7c0ddfaf30c842b05502d3cf641c135e0120a3a19047008ba8525b72953ed", size = 2069082, upload-time = "2026-10-09T20:06:27.166Z" },
+]
+
+[[package]]
+name = "gunicorn"
+version = "27.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0e/fc/7fd4bbebc1d17394a5c98f0ef565da3341dbb664748d1bebedefead356ee/gunicorn-27.0.1.tar.gz", hash = "sha256:b1514965361c8b7e8107a80aa2a92636878df1ccfac6dd204a676426e04d9e3e", size = 876901, upload-time = "2026-11-12T22:41:11.334Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f7/46/19ce73424bc4bcac3f0c104950fa776abdfa4515f25104916a62b63b672a/gunicorn-27.0.1-py3-none-any.whl", hash = "sha256:378b26b9a38adcf4592f28828233c1716acc55e833ea06bf48719782efaa0d10", size = 263696, upload-time = "2026-11-12T22:41:09.798Z" },
 ]
 
 [[package]]
@@ -789,4 +802,13 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d9/68/f1b440335057bfce71b6e50a9d09445aa2ecbd08359a337976627b8409e7/tzdata-2026.5.tar.gz", hash = "sha256:8cc73c0a0bfca7dbfa59235d60b2eff82231dee33f53d206db1acd9173cfc0a7", size = 200404, upload-time = "2026-10-03T09:23:14.143Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/94/21/1e5995a1c920cce14e4bffae20c665ec10e7ed03ab25e006cd741092b718/tzdata-2026.5-py2.py3-none-any.whl", hash = "sha256:b683bd1b6659ddcd810ff02ad09ba821d4bf1065072805063eb35c49617905ac", size = 347996, upload-time = "2026-10-03T09:23:12.535Z" },
+]
+
+[[package]]
+name = "whitenoise"
+version = "6.12.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/2a/55b3f3a4ec326cd077c1c3defeee656b9298372a69229134d930151acd01/whitenoise-6.12.0.tar.gz", hash = "sha256:f723ebb76a112e98816ff80fcea0a6c9b8ecde835f8ddda25df7a30a3c2db6ad", size = 26841, upload-time = "2026-02-27T00:05:42.028Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/db/eb/d5583a11486211f3ebd4b385545ae787f32363d453c19fffd81106c9c138/whitenoise-6.12.0-py3-none-any.whl", hash = "sha256:fc5e8c572e33ebf24795b47b6a7da8da3c00cff2349f5b04c02f28d0cc5a3cc2", size = 20302, upload-time = "2026-02-27T00:05:40.086Z" },
 ]

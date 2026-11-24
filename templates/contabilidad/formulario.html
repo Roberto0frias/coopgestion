@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Nuevo asiento{% endblock %}
+{% block breadcrumb %}<a href="{% url 'contabilidad:lista' %}">Contabilidad</a> <span>/</span> Nuevo asiento{% endblock %}
+{% block content %}
+<section class="welcome-row"><div><p class="eyebrow">LIBRO DIARIO</p><h1>Crear asiento contable</h1><p class="welcome-subtitle">Se guardará como borrador. El asiento solo se confirma cuando débito y crédito cuadran.</p></div></section>
+<form method="post" class="form-panel journal-form">{% csrf_token %}<input type="hidden" name="clave_idempotencia" value="{{ clave_idempotencia }}">{% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}<div class="form-grid journal-header-fields">{% for field in form %}<div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}</div><div class="journal-lines-heading"><div><h2>Líneas del asiento</h2><p>Cada línea debe tener un único monto: débito o crédito.</p></div><button class="button button-light" id="add-line" type="button">＋ Añadir línea</button></div>{{ formset.management_form }}<div id="journal-lines" class="journal-lines">{% for line_form in formset %}<div class="journal-line"><div class="line-number">{{ forloop.counter }}</div><div class="form-field line-account"><label for="{{ line_form.cuenta.id_for_label }}">Cuenta</label>{{ line_form.cuenta }}{{ line_form.cuenta.errors }}</div><div class="form-field line-description"><label for="{{ line_form.descripcion.id_for_label }}">Detalle</label>{{ line_form.descripcion }}</div><div class="form-field line-amount"><label for="{{ line_form.debito.id_for_label }}">Débito (RD$)</label>{{ line_form.debito }}</div><div class="form-field line-amount"><label for="{{ line_form.credito.id_for_label }}">Crédito (RD$)</label>{{ line_form.credito }}</div><div class="line-errors">{{ line_form.non_field_errors }}</div></div>{% endfor %}</div><template id="empty-line-template"><div class="journal-line"><div class="line-number">+</div><div class="form-field line-account"><label for="{{ formset.empty_form.cuenta.id_for_label }}">Cuenta</label>{{ formset.empty_form.cuenta }}</div><div class="form-field line-description"><label for="{{ formset.empty_form.descripcion.id_for_label }}">Detalle</label>{{ formset.empty_form.descripcion }}</div><div class="form-field line-amount"><label for="{{ formset.empty_form.debito.id_for_label }}">Débito (RD$)</label>{{ formset.empty_form.debito }}</div><div class="form-field line-amount"><label for="{{ formset.empty_form.credito.id_for_label }}">Crédito (RD$)</label>{{ formset.empty_form.credito }}</div><div class="line-errors"></div></div></template><div class="form-note">La partida doble se verifica en el servicio y en PostgreSQL al confirmar. El asiento confirmado queda inmutable.</div><div class="form-actions"><a class="button button-light" href="{% url 'contabilidad:lista' %}">Cancelar</a><button class="button button-primary" type="submit">Guardar borrador <span>→</span></button></div></form>
+<script>
+(() => {
+  const list = document.getElementById('journal-lines');
+  const total = document.getElementById('id_lineas-TOTAL_FORMS');
+  const template = document.getElementById('empty-line-template');
+  document.getElementById('add-line').addEventListener('click', () => {
+    const index = Number(total.value);
+    const html = template.innerHTML.replaceAll('__prefix__', index);
+    list.insertAdjacentHTML('beforeend', html);
+    total.value = String(index + 1);
+    const row = list.lastElementChild;
+    row.querySelector('.line-number').textContent = String(index + 1);
+  });
+})();
+</script>
+{% endblock %}

@@ -23,6 +23,7 @@ media/
 staticfiles/
 *.log
 db.sqlite3
+*.sqlite3
 
 # Entorno local de PostgreSQL portable (fuera del repositorio por tamaño)
 .entorno/
